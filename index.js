@@ -1,5 +1,5 @@
 const express = require("express");
-
+const axios = require("axios");
 const app = express();
 const { CognitoJwtVerifier } = require("aws-jwt-verify");
 const dotenv = require("dotenv");
@@ -34,18 +34,19 @@ app.post("/completion", validateAccessToken, async (req, res) => {
   try {
     const requestBody = req.body;
     console.log("request body", requestBody);
-    const response = await fetch(`https://api.openai.com/v1/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_KEY}`,
-      },
-      body: JSON.stringify(requestBody),
-    });
-    const responseJson = await response.json();
-    console.log("response", responseJson);
-    // Add your code here
-    res.status(200).json(responseJson);
+    const response = await axios.post(
+      `https://api.openai.com/v1/chat/completions`,
+      { ...requestBody },
+
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.OPENAI_KEY}`,
+        },
+      }
+    );
+    console.log("response", response.data);
+    res.status(200).json(response.data);
   } catch (err) {
     console.log("error", err);
     return res.status(500).json({
